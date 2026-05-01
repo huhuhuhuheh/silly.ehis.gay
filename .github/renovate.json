@@ -6,6 +6,7 @@
   "rangeStrategy": "bump",
   "labels": ["dependencies"],
   "automerge": false,
+  "dependencyDashboard": true,
   "packageRules": [
     {
       "matchPackageNames": [
@@ -14,6 +15,11 @@
         "react-dom"
       ],
       "groupName": "nextjs core"
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all other non-major dependencies",
+      "groupSlug": "all-non-major"
     }
   ]
 }
