@@ -7,6 +7,7 @@
   "labels": ["dependencies"],
   "automerge": false,
   "dependencyDashboard": true,
+  "timezone": "Europe/Berlin",
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": ["security"]
@@ -24,7 +25,10 @@
     {
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "all other non-major dependencies",
-      "groupSlug": "all-non-major"
+      "groupSlug": "all-non-major",
+      "automerge": true,
+      "minimumReleaseAge": "7 days",
+      "prCreation": "not-pending"
     }
   ]
 }
