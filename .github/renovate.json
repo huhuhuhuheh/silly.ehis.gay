@@ -1,0 +1,19 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "rangeStrategy": "bump",
+  "labels": ["dependencies"],
+  "automerge": false,
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "next",
+        "react",
+        "react-dom"
+      ],
+      "groupName": "nextjs core"
+    }
+  ]
+}
