@@ -14,11 +14,6 @@ const MIME_TYPES: Record<string, string> = {
   ".avif": "image/avif",
 };
 
-function getDownloadName(originalFileName: string) {
-  const ext = path.extname(originalFileName).toLowerCase();
-  return `silly.ehis${ext || ".bin"}`;
-}
-
 export async function GET() {
   const publicDir = path.join(process.cwd(), "public");
   const entries = await fs.readdir(publicDir, { withFileTypes: true });
@@ -45,10 +40,12 @@ export async function GET() {
   const ext = path.extname(image).toLowerCase();
   const contentType = MIME_TYPES[ext] ?? "application/octet-stream";
 
+  const encodedImage = encodeURIComponent(image);
+
   return new Response(file, {
     headers: {
       "Content-Type": contentType,
-      "Content-Disposition": `inline; filename="${getDownloadName(image)}"`,
+      "Content-Disposition": `inline; filename="${image}"; filename*=UTF-8''${encodedImage}`,
       "Cache-Control": "no-store, max-age=0",
     },
   });
