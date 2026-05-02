@@ -14,6 +14,11 @@ const MIME_TYPES: Record<string, string> = {
   ".avif": "image/avif",
 };
 
+function getDownloadName(originalFileName: string) {
+  const ext = path.extname(originalFileName).toLowerCase();
+  return `silly.ehis${ext || ".bin"}`;
+}
+
 export async function GET() {
   const publicDir = path.join(process.cwd(), "public");
   const entries = await fs.readdir(publicDir, { withFileTypes: true });
@@ -21,24 +26,29 @@ export async function GET() {
   const images = entries
     .filter((entry) => entry.isFile())
     .map((entry) => entry.name)
-    .filter((name) => /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(name));
+    .filter((name) => /\.(png|jpe?g|gif|webp|avif)$/i.test(name));
 
   if (images.length === 0) {
     return new Response("No images :(", {
       status: 404,
-      headers: { "Content-Type": "text/plain; charset=utf-8" },
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+      },
     });
   }
 
   const image = images[randomInt(images.length)];
   const filePath = path.join(publicDir, image);
+
   const file = await fs.readFile(filePath);
+
   const ext = path.extname(image).toLowerCase();
   const contentType = MIME_TYPES[ext] ?? "application/octet-stream";
 
   return new Response(file, {
     headers: {
       "Content-Type": contentType,
+      "Content-Disposition": `inline; filename="${getDownloadName(image)}"`,
       "Cache-Control": "no-store, max-age=0",
     },
   });
