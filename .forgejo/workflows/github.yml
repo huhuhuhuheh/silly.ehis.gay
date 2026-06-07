@@ -17,14 +17,12 @@ jobs:
       - name: Generate GitHub App Token
         id: get-token
         uses: https://github.com/actions/create-github-app-token@v1
-        env:
-          GITHUB_API_URL: https://api.github.com
-          GITHUB_SERVER_URL: https://github.com
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_KEY }}
           owner: huhuhuhuheh
           repositories: silly.ehis.gay
+          github-api-url: https://api.github.com
 
       - name: Push Commit to GitHub
         run: |
