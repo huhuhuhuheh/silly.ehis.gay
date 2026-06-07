@@ -27,7 +27,6 @@
       "groupName": "all other non-major dependencies",
       "groupSlug": "all-non-major",
       "automerge": true,
-      "minimumReleaseAge": "7 days",
       "prCreation": "not-pending"
     }
   ]
