@@ -27,7 +27,7 @@ jobs:
       - name: Push Commit to GitHub
         run: |
           git remote add github https://x-access-token:${{ steps.get-token.outputs.token }}@github.com/huhuhuhuheh/silly.ehis.gay.git
-          git push github HEAD:master
+          git push --force github HEAD:master
 
       - name: Comment on GitHub Commit
         run: |
