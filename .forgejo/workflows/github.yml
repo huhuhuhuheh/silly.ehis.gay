@@ -12,7 +12,7 @@ jobs:
       - name: Checkout Forgejo Repository
         uses: https://github.com/actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Generate GitHub App Token
         id: get-token
