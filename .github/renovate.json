@@ -5,7 +5,6 @@
   ],
   "rangeStrategy": "bump",
   "labels": ["dependencies"],
-  "automerge": false,
   "dependencyDashboard": true,
   "timezone": "Europe/Berlin",
   "vulnerabilityAlerts": {
@@ -27,7 +26,10 @@
       "groupName": "all other non-major dependencies",
       "groupSlug": "all-non-major",
       "automerge": true,
-      "prCreation": "not-pending"
+      "platformAutomerge": false,
+      "automergeSchedule": [
+        "* * * * 1"
+      ]
     }
   ]
 }
