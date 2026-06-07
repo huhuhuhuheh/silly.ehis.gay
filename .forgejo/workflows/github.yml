@@ -21,8 +21,8 @@ jobs:
           GITHUB_API_URL: https://api.github.com
           GITHUB_SERVER_URL: https://github.com
         with:
-          app-id: ${{ secrets.GITHUB_APP_ID }}
-          private-key: ${{ secrets.GITHUB_APP_KEY }}
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_KEY }}
           owner: huhuhuhuheh
           repositories: silly.ehis.gay
 
