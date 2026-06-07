@@ -10,13 +10,13 @@ jobs:
     runs-on: docker
     steps:
       - name: Checkout Forgejo Repository
-        uses: actions/checkout@v6
+        uses: https://github.com/actions/checkout@v4
         with:
           fetch-depth: 2
 
       - name: Generate GitHub App Token
         id: get-token
-        uses: actions/create-github-app-token@v3
+        uses: https://github.com/actions/create-github-app-token@v1
         env:
           GITHUB_API_URL: https://api.github.com
           GITHUB_SERVER_URL: https://github.com
@@ -34,8 +34,7 @@ jobs:
       - name: Comment on GitHub Commit
         run: |
           FILES=$(git diff-tree --no-commit-id --name-only -r HEAD | tr '\n' ', ' | sed 's/, $//')
-          FORGEJO_LINK="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA"
-          COMMENT="Mirrored \`$FILES\` from [Forgejo]($FORGEJO_LINK)"
+          COMMENT="Syncing to huhuhuhuheh/silly.ehis.gay\n\nFiles: $FILES"
           
           PAYLOAD=$(jq -n --arg body "$COMMENT" '{body: $body}')
           
