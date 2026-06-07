@@ -2,8 +2,7 @@ name: Mirror to GitHub
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
 
 jobs:
   mirror:
@@ -25,36 +24,45 @@ jobs:
           repositories: silly.ehis.gay
           github-api-url: https://api.github.com
 
-      - name: Sync commits one by one to GitHub
+      - name: Get GitHub App User ID
+        id: get-user-id
         env:
           GH_TOKEN: ${{ steps.get-token.outputs.token }}
         run: |
-          git config user.name "nothuhinabot[bot]"
-          git config user.email "pullbot@git.gay"
+          APP_SLUG='${{ steps.get-token.outputs.app-slug }}'
+          echo "user-id=$(gh api "/users/${APP_SLUG}%5Bbot%5D" --jq .id)" >> "$GITHUB_OUTPUT"
 
+      - name: Sync commits one by one to GitHub
+        env:
+          GH_TOKEN: ${{ steps.get-token.outputs.token }}
+          BOT_SLUG: ${{ steps.get-token.outputs.app-slug }}
+          BOT_USER_ID: ${{ steps.get-user-id.outputs.user-id }}
+        run: |
           git remote add github "https://x-access-token:${GH_TOKEN}@github.com/huhuhuhuheh/silly.ehis.gay.git" || true
-
           git fetch github master --depth=100 || true
 
-          BASE=$(git merge-base HEAD github/master 2>/dev/null || echo "")
+          BASE=$(git merge-base HEAD github/master 2>/dev/null || true)
           if [ -z "$BASE" ]; then
             COMMITS=$(git rev-list --reverse HEAD)
           else
-            COMMITS=$(git rev-list --reverse $BASE..HEAD)
+            COMMITS=$(git rev-list --reverse "$BASE"..HEAD)
           fi
 
+          git checkout -B sync github/master
+
           for COMMIT in $COMMITS; do
-            git checkout -B temp-sync $COMMIT
-            git reset --soft $COMMIT
+            FILES=$(git diff-tree --no-commit-id --name-only -r "$COMMIT" | tr '\n' ' ' | sed 's/ $//')
+            [ -n "$FILES" ] || FILES="multiple files"
 
-            FILES=$(git diff-tree --no-commit-id --name-only -r $COMMIT | tr '\n' ' ' | sed 's/ $//')
-            if [ -z "$FILES" ]; then FILES="multiple files"; fi
+            MSG="Synced $FILES from git.gay https://git.gay/huhuhuhuheh/silly.ehis.gay/commit/$COMMIT"
 
-            COMMIT_MSG="Synced $FILES from git.gay https://git.gay/huhuhuhuheh/silly.ehis.gay/commit/$COMMIT"
+            git cherry-pick --no-commit "$COMMIT" || exit 1
 
-            git commit --amend -m "$COMMIT_MSG" --no-edit --reset-author || true
-
-            git push --force github HEAD:master
+            GIT_AUTHOR_NAME="${BOT_SLUG}[bot]" \
+            GIT_AUTHOR_EMAIL="${BOT_USER_ID}+${BOT_SLUG}[bot]@users.noreply.github.com" \
+            GIT_COMMITTER_NAME="${BOT_SLUG}[bot]" \
+            GIT_COMMITTER_EMAIL="${BOT_USER_ID}+${BOT_SLUG}[bot]@users.noreply.github.com" \
+              git commit -m "$MSG"
           done
 
-          git checkout master
+          git push --force github sync:master
