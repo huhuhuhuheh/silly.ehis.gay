@@ -1,0 +1,44 @@
+name: Mirror to GitHub
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Forgejo Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Generate GitHub App Token
+        id: get-token
+        uses: actions/create-github-app-token@v1
+        env:
+          GITHUB_API_URL: https://api.github.com
+          GITHUB_SERVER_URL: https://github.com
+        with:
+          app-id: ${{ secrets.GITHUB_APP_ID }}
+          private-key: ${{ secrets.GITHUB_APP_KEY }}
+          owner: huhuhuhuheh
+          repositories: silly.ehis.gay
+
+      - name: Push Commit to GitHub
+        run: |
+          git remote add github https://x-access-token:${{ steps.get-token.outputs.token }}@github.com/huhuhuhuheh/silly.ehis.gay.git
+          git push github HEAD:main
+
+      - name: Comment on GitHub Commit
+        run: |
+          FILES=$(git diff-tree --no-commit-id --name-only -r HEAD | tr '\n' ', ' | sed 's/, $//')
+          FORGEJO_LINK="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA"
+          COMMENT="Mirrored \`$FILES\` from [Forgejo]($FORGEJO_LINK)"
+          
+          curl -s -X POST "https://api.github.com/repos/huhuhuhuheh/silly.ehis.gay/commits/$GITHUB_SHA/comments" \
+            -H "Authorization: Bearer ${{ steps.get-token.outputs.token }}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -d "{\"body\": \"$COMMENT\"}"
