@@ -80,9 +80,7 @@ jobs:
             FILES=$(git diff-tree --no-commit-id --name-only -r "$COMMIT" | tr '\n' ' ' | sed 's/ $//')
             [ -n "$FILES" ] || FILES="multiple files"
 
-            FILE_LINK="[${FILES}](https://git.gay/huhuhuhuheh/silly.ehis.gay/tree/$COMMIT/$FILES)"
-            SRC_LINK="https://git.gay/huhuhuhuheh/silly.ehis.gay/commit/$COMMIT"
-            MSG="Synced ${FILE_LINK} from git.gay ${SRC_LINK}"
+            MSG="Synced ${FILES} from git.gay: https://git.gay/huhuhuhuheh/silly.ehis.gay/commit/${COMMIT}"
 
             TREE=$(git rev-parse "${COMMIT}^{tree}")
             PARENT=$(git rev-parse HEAD)
