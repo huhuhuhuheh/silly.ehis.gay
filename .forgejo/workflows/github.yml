@@ -3,7 +3,7 @@ name: Mirror to GitHub
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   mirror:
@@ -21,15 +21,15 @@ jobs:
           GITHUB_API_URL: https://api.github.com
           GITHUB_SERVER_URL: https://github.com
         with:
-          app-id: ${{ secrets.GITHUB_APP_ID }}
-          private-key: ${{ secrets.GITHUB_APP_KEY }}
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_KEY }}
           owner: huhuhuhuheh
           repositories: silly.ehis.gay
 
       - name: Push Commit to GitHub
         run: |
           git remote add github https://x-access-token:${{ steps.get-token.outputs.token }}@github.com/huhuhuhuheh/silly.ehis.gay.git
-          git push github HEAD:main
+          git push github HEAD:master
 
       - name: Comment on GitHub Commit
         run: |
@@ -37,8 +37,10 @@ jobs:
           FORGEJO_LINK="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA"
           COMMENT="Mirrored \`$FILES\` from [Forgejo]($FORGEJO_LINK)"
           
+          PAYLOAD=$(jq -n --arg body "$COMMENT" '{body: $body}')
+          
           curl -s -X POST "https://api.github.com/repos/huhuhuhuheh/silly.ehis.gay/commits/$GITHUB_SHA/comments" \
             -H "Authorization: Bearer ${{ steps.get-token.outputs.token }}" \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            -d "{\"body\": \"$COMMENT\"}"
+            -d "$PAYLOAD"
