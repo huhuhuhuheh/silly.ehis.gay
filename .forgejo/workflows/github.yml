@@ -8,15 +8,16 @@ on:
 jobs:
   mirror:
     runs-on: docker
+    if: github.actor != 'nothuhinabot'
     steps:
       - name: Checkout Forgejo Repository
-        uses: https://github.com/actions/checkout@v4
+        uses: https://github.com/actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Generate GitHub App Token
         id: get-token
-        uses: https://github.com/actions/create-github-app-token@v1
+        uses: https://github.com/actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_KEY }}
@@ -24,20 +25,36 @@ jobs:
           repositories: silly.ehis.gay
           github-api-url: https://api.github.com
 
-      - name: Push Commit to GitHub
+      - name: Sync commits one by one to GitHub
+        env:
+          GH_TOKEN: ${{ steps.get-token.outputs.token }}
         run: |
-          git remote add github https://x-access-token:${{ steps.get-token.outputs.token }}@github.com/huhuhuhuheh/silly.ehis.gay.git
-          git push --force github HEAD:master
+          git config user.name "nothuhinabot[bot]"
+          git config user.email "pullbot@git.gay"
 
-      - name: Comment on GitHub Commit
-        run: |
-          FILES=$(git diff-tree --no-commit-id --name-only -r HEAD | tr '\n' ', ' | sed 's/, $//')
-          COMMENT="Syncing to huhuhuhuheh/silly.ehis.gay\n\nFiles: $FILES"
-          
-          PAYLOAD=$(jq -n --arg body "$COMMENT" '{body: $body}')
-          
-          curl -s -X POST "https://api.github.com/repos/huhuhuhuheh/silly.ehis.gay/commits/$GITHUB_SHA/comments" \
-            -H "Authorization: Bearer ${{ steps.get-token.outputs.token }}" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            -d "$PAYLOAD"
+          git remote add github "https://x-access-token:${GH_TOKEN}@github.com/huhuhuhuheh/silly.ehis.gay.git" || true
+
+          git fetch github master --depth=100 || true
+
+          BASE=$(git merge-base HEAD github/master 2>/dev/null || echo "")
+          if [ -z "$BASE" ]; then
+            COMMITS=$(git rev-list --reverse HEAD)
+          else
+            COMMITS=$(git rev-list --reverse $BASE..HEAD)
+          fi
+
+          for COMMIT in $COMMITS; do
+            git checkout -B temp-sync $COMMIT
+            git reset --soft $COMMIT
+
+            FILES=$(git diff-tree --no-commit-id --name-only -r $COMMIT | tr '\n' ' ' | sed 's/ $//')
+            if [ -z "$FILES" ]; then FILES="multiple files"; fi
+
+            COMMIT_MSG="Synced $FILES from git.gay https://git.gay/huhuhuhuheh/silly.ehis.gay/commit/$COMMIT"
+
+            git commit --amend -m "$COMMIT_MSG" --no-edit --reset-author || true
+
+            git push --force github HEAD:master
+          done
+
+          git checkout master
