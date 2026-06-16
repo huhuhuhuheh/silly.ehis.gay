@@ -6,7 +6,7 @@ You can simply fork the repo, do `npm install` to get the packages and run it wi
 
 ## Adding images
 
-1. Simply do a [Fork](https://github.com/huhuhuhuheh/silly.ehis.gay/fork) to your account
+1. Simply do a [Fork](https://github.com/huhuhuhuheh/silly.ehis.gay/fork) (or in git.gay [here](https://git.gay/huhuhuhuheh/silly.ehis.gay/fork)) to your account
 2. Grab your fork's source code via the code --> Download ZIP or via git (`git clone <repo>`)
 3. Switch to new branch (`git switch -c <name>` that's unique to your other submissions)
 4. Add image at `/public` from the ones that are supported
