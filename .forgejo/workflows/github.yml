@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout Forgejo Repository
-        uses: https://github.com/actions/checkout@v6
+        uses: https://github.com/actions/checkout@v7
         with:
           fetch-depth: 0
 
