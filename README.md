@@ -12,7 +12,7 @@ You can simply fork the repo, do `npm install` to get the packages and run it wi
 4. Add image at `/public` from the ones that are supported
 5. Commit it
 6. Push to the branch repo of your fork
-7. Make an Pull Request after
+7. Make an Pull Request after.
 8. That's it
 
 ### Rules to image submissions
